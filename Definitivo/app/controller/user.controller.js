@@ -1,15 +1,23 @@
 const db = require('../config/db.config.js');
-const Customer = db.customers;
-
+const User = db.users;
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 // Post a User
-exports.create = (req, res) => {	
+exports.create = (req, res) => {
+	let hashedPass;
+	bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+		hashedPass = hash;
+		// Store hash in your password DB.
+	});
 	// Save to PostgreSQL database
-	Customer.create({  
-		name: req.body.name,
-		age: req.body.age
-	}).then(customer => {		
-		// Send created customer to client
-		res.send(customer);
+	User.create({  
+		userName: req.body.userName,
+		password: hashedPass,
+		userMail: req.body.email
+	}).then(user => {		
+		// Send created customer to client FALTA AÑADIR AVATAR
+		user.userAvatar = "https://api.adorable.io/avatars/204/abott@adorable.png";
+		res.send(user);
 	}).catch(err => {
 		res.status(500).send("Error -> " + err);
 	});
@@ -17,58 +25,73 @@ exports.create = (req, res) => {
  
 // FETCH all Customers
 exports.findAll = (req, res) => {
-	Customer.findAll().then(customers => {
+	User.findAll().then(users => {
 		// Send all customers to Client
-		res.send(customers);
+		res.send(users);
 	}).catch(err => {
 		res.status(500).send("Error -> " + err);
-	})
+	});
 };
  
 // Find a Customer by Id
 exports.findById = (req, res) => {	
-	Customer.findById(req.params.customerId).then(customer => {
-		res.send(customer);
+	User.findById(req.params.userId).then(user => {
+		res.send(user);
 	}).catch(err => {
 		res.status(500).send("Error -> " + err);
-	})
+	});
 };
 
 // Find Customers by Age
-exports.findByAge = (req, res) => {
-	Customer.findAll({
+exports.findByUserName = (req, res) => {
+	User.findAll({
 		where: {
-			age: req.params.age
+			userName: req.params.userName
 		}
 	}).then(
-		customers => {
-			res.send(customers)
+		users => {
+			res.send(users);
 		}
 	).catch(err => {
 		res.status(500).send("Error -> " + err);
 	})
 };
  
-// Update a Customer
+// Update a User
 exports.update = (req, res) => {
-	var customer = req.body;
+	var user = req.body;
 	const id = req.params.customerId;
-	Customer.update( { name: req.body.name, age: req.body.age, active: req.body.active }, 
-						{ where: {id: req.params.customerId} }
+	let hashedPass;
+	let dateNow;
+	if (req.body.deactivate){
+		dateNow = Date.now();
+	}
+	bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+		hashedPass = hash;
+		// Store hash in your password DB.
+	});
+	Customer.update( { 
+		userName: req.body.userName, 
+		userMail: req.body.userMail,
+		userPass: hashedPass,
+		userAvatar: req.body.userAvatar,
+		unsubDate:dateNow
+		},
+						{ where: {id: req.params.userId} }
 				   ).then(() => {
 						res.status(200).send(customer);
 				   }).catch(err => {
 						res.status(500).send("Error -> " + err);
-				   })
+				   });
 };
  
 // Delete a Customer by Id
 exports.delete = (req, res) => {
-	const id = req.params.customerId;
-	Customer.destroy({
-	  where: { id: id }
+	const id = req.params.userId;
+	User.destroy({
+	  where: { userId: id }
 	}).then(() => {
-		res.status(200).send('Customer has been deleted!');
+		res.status(200).send('User has been deleted!');
 	}).catch(err => {
 		res.status(500).send("Error -> " + err);
 	});

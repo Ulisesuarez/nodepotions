@@ -2,7 +2,8 @@ const env = {
   database: 'pociones_db',
   username: 'pociones',
   password: 'Mulhacen',
-  host: 'http://adminer.randion.es',
+  host: 'randion.es',
+  port: 5432,
   dialect: 'postgres',
   pool: {
 	  max: 5,

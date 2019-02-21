@@ -2,19 +2,29 @@ module.exports = (sequelize, Sequelize) => {
 	const User = sequelize.define('user', {
 	  userId: {
 		type: Sequelize.INTEGER,
+		primaryKey: true,
 		autoIncrement: true
 	  },
 	  userName: {
 		  type: Sequelize.STRING
-	  },
+		},
+		userPass: {
+			type: Sequelize.STRING
+		},
 	  userMail: {
 			type: Sequelize.STRING
 		},
-		creationDate: {
-			type: Sequelize.DATE
+		createdAt: {
+				type: 'TIMESTAMP',
+				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+		},
+		updatedAt: {
+			type: 'TIMESTAMP',
+			defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
 		},
 		unsubDate: {
-			type: Sequelize.DATE
+			type: 'TIMESTAMP',
+
 		},
 		userAvatar:{
 			type: Sequelize.STRING
